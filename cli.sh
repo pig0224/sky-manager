@@ -371,7 +371,7 @@ case "$num" in
 	*)
 	clear
 	echo -e "${Error}: Please enter the correct number. [0-11]"
-	sleep 5s
+	sleep 2s
 	start_menu
 	;;
 esac
