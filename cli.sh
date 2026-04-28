@@ -67,14 +67,14 @@ Update_CLI(){
 		echo -e "This is the latest version at present. [ ${cli_new_ver} ] !"
 		sleep 5s
 	fi
-  read -n 1 -p "Press any key back to menu..."
-  start_menu
+	read -n 1 -p "Press any key back to menu..."
+	start_menu
 }
 
 remove_all(){
 	sed -i '/net.core.default_qdisc/d' /etc/sysctl.conf
-  sed -i '/net.ipv4.tcp_congestion_control/d' /etc/sysctl.conf
-  sed -i '/fs.file-max/d' /etc/sysctl.conf
+	sed -i '/net.ipv4.tcp_congestion_control/d' /etc/sysctl.conf
+	sed -i '/fs.file-max/d' /etc/sysctl.conf
 	sed -i '/net.core.rmem_default/d' /etc/sysctl.conf
 	sed -i '/net.core.wmem_default/d' /etc/sysctl.conf
 	sed -i '/net.core.somaxconn/d' /etc/sysctl.conf
@@ -119,8 +119,8 @@ Enabled_BBR(){
 	fi
 	sysctl -p
 	echo -e "${Info} BBR Started Successfully"
-  read -n 1 -p "Press any key back to menu..."
-  start_menu
+	read -n 1 -p "Press any key back to menu..."
+	start_menu
 }
 
 System_Optimization(){
@@ -137,7 +137,7 @@ System_Optimization(){
 	sed -i '/net.ipv4.tcp_max_tw_buckets/d' /etc/sysctl.conf
 	sed -i '/net.ipv4.tcp_max_syn_backlog/d' /etc/sysctl.conf
 	sed -i '/net.core.netdev_max_backlog/d' /etc/sysctl.conf
-  sed -i '/net.ipv4.tcp_slow_start_after_idle/d' /etc/sysctl.conf
+	sed -i '/net.ipv4.tcp_slow_start_after_idle/d' /etc/sysctl.conf
 	sed -i '/net.ipv4.ip_forward/d' /etc/sysctl.conf
 	echo "fs.file-max = 1000000
 fs.inotify.max_user_instances = 8192
@@ -167,7 +167,7 @@ net.ipv4.ip_forward = 1">>/etc/sysctl.conf
 	else
     read -n 1 -p "Press any key back to menu..."
     start_menu
-  fi
+	fi
 }
 
 NODE_VERSION="v20.11.1"
@@ -176,165 +176,162 @@ NODE_FILE="node-${NODE_VERSION}-linux-x64.tar.xz"
 NODE_URL="https://nodejs.org/dist/${NODE_VERSION}/${NODE_FILE}"
 
 Install_Manager(){
-  echo "===================================================="  
-  echo "========= Start installing the Sky Manager ========="
-  echo "===================================================="
+	echo "===================================================="  
+	echo "========= Start installing the Sky Manager ========="
+	echo "===================================================="
 
-  if command -v sky &>/dev/null; then
-    echo "Complated, Sky Manager is installed."
-    read -n 1 -p "Press any key back to menu..."
-    start_menu
-    return 0
-  fi
+	if command -v sky &>/dev/null; then
+		echo "Complated, Sky Manager is installed."
+		read -n 1 -p "Press any key back to menu..."
+		start_menu
+		return 0
+	fi
 
-  if command -v node &> /dev/null && [ -d "${NODE_DIR}" ]; then
-    node --version
-    npm --version
-  else
-    wget -q --show-progress "${NODE_URL}" -O "${NODE_FILE}"
-    if [ $? -ne 0 ]; then
-      echo "Download failed. Please check your network."
-      read -n 1 -p "Press any key back to menu..."
-      start_menu
-      return 1
-    fi
+	if command -v node &> /dev/null && [ -d "${NODE_DIR}" ]; then
+		node --version
+		npm --version
+	else
+		wget -q --show-progress "${NODE_URL}" -O "${NODE_FILE}"
+		if [ $? -ne 0 ]; then
+			echo "Download failed. Please check your network."
+			read -n 1 -p "Press any key back to menu..."
+			start_menu
+			return 1
+		fi
 
-    echo "The files are being decompressed to /opt..."
-    tar -xJvf "${NODE_FILE}" -C /opt >/dev/null 2>&1
-    if [ $? -ne 0 ]; then
-    	echo "Decompression failed, please check the integrity of the downloaded file."
-    	read -n 1 -p "Press any key back to menu..."
-    	start_menu
-    	return 1
-    fi
+		echo "The files are being decompressed to /opt..."
+		tar -xJvf "${NODE_FILE}" -C /opt >/dev/null 2>&1
+		if [ $? -ne 0 ]; then
+			echo "Decompression failed, please check the integrity of the downloaded file."
+			read -n 1 -p "Press any key back to menu..."
+			start_menu
+			return 1
+		fi
 
-    echo "Configure system environment variables..."
-    if ! grep -q "${NODE_DIR}/bin" /etc/profile; then
-    	echo "export PATH=${NODE_DIR}/bin:\$PATH" >> /etc/profile
-    	echo "export PATH=${NODE_DIR}/bin:\$PATH" >> ~/.bashrc
-    fi
+		ln -sf /opt/node-v20.11.1-linux-x64/bin/node /usr/local/bin/
+		ln -sf /opt/node-v20.11.1-linux-x64/bin/npm /usr/local/bin/
 
-    source /etc/profile
-    source ~/.bashrc
-    export PATH=${NODE_DIR}/bin:$PATH
+		node --version
+		npm --version
+	fi
 
-    node --version
-    npm --version
-  fi
+	npm install -g sky-manager
+	if [ $? -eq 0 ]; then
+		ln -sf /opt/node-v20.11.1-linux-x64/bin/sky /usr/local/bin/
+		echo "Sky Manager Installed successfully"
+	else
+		echo "Sky Manager Installation failed, please check the error message above."
+		read -n 1 -p "Press any key back to menu..."
+		start_menu
+		return 1
+	fi
 
-  npm install -g sky-manager
-  if [ $? -eq 0 ]; then
-    echo "Sky Manager Installed successfully"
-  else
-    echo "Sky Manager Installation failed, please check the error message above."
-  fi
+	rm -f "${NODE_FILE}"
 
-  rm -f "${NODE_FILE}"
+	if command -v sky &>/dev/null; then
+		local status=$(sky status 2>/dev/null)
+		if [[ "${status}" == "online" ]]; then
+		sky restart
+		else
+		sky start
+		fi
+	fi
 
-  if command -v sky &>/dev/null; then
-    local status=$(sky status 2>/dev/null)
-    if [[ "${status}" == "online" ]]; then
-      sky restart
-    else
-      sky start
-    fi
-  fi
-
-  echo -e "\n Complated"
-  read -n 1 -p "Press any key back to menu..."
-  start_menu
+	echo -e "\n Complated"
+	read -n 1 -p "Press any key back to menu..."
+	start_menu
 }
 
 Uninstall_Manager(){
-  echo "=================================================="
-  echo "========= Start uninstalling Sky Manager ========="
-  echo "=================================================="
+	echo "=================================================="
+	echo "========= Start uninstalling Sky Manager ========="
+	echo "=================================================="
 
-  if command -v sky &>/dev/null; then
-    local status=$(sky status 2>/dev/null)
-    if [[ "${status}" == "online" ]]; then
-      sky stop
-    fi
-  fi
+	if command -v sky &>/dev/null; then
+		local status=$(sky status 2>/dev/null)
+		if [[ "${status}" == "online" ]]; then
+			sky stop
+		fi
+	fi
 
-  if [ ! -d "${NODE_DIR}" ] && ! command -v node &>/dev/null; then
-    echo "Complated, Sky Manager is not installed."
-    read -n 1 -p "Press any key back to menu..."
-    start_menu
-    return 0
-  fi
+	if [ ! -d "${NODE_DIR}" ] && ! command -v node &>/dev/null; then
+		echo "Complated, Sky Manager is not installed."
+		read -n 1 -p "Press any key back to menu..."
+		start_menu
+		return 0
+	fi
 
-  npm uninstall -g sky-manager >/dev/null 2>&1
+	npm uninstall -g sky-manager >/dev/null 2>&1
 
-  rm -rf "${NODE_DIR}"
+	rm -f /usr/local/bin/sky
+	rm -f /usr/local/bin/node
+	rm -f /usr/local/bin/npm
+	rm -rf "${NODE_DIR}"
 
-  sed -i "/node-${NODE_VERSION}-linux-x64/d" /etc/profile
-  source /etc/profile
-
-  echo "Complated, Sky Manager has been uninstalled."
-  read -n 1 -p "Press any key back to menu..."
-  start_menu
+	echo "Complated, Sky Manager has been uninstalled."
+	read -n 1 -p "Press any key back to menu..."
+	start_menu
 }
 
 Start_Manager(){
-  echo "====================================="
-  echo "========= Start Sky Manager ========="
-  echo "====================================="
+	echo "====================================="
+	echo "========= Start Sky Manager ========="
+	echo "====================================="
 
-  if ! command -v sky &>/dev/null; then
-    echo "sky-manager has not been installed. Please Install Manager."
-    read -n 1 -p "Press any key back to menu..."
-    start_menu
-    return 1
-  fi
+	if ! command -v sky &>/dev/null; then
+		echo "Sky Manager has not been installed. Please Install Manager."
+		read -n 1 -p "Press any key back to menu..."
+		start_menu
+		return 1
+	fi
 
-  local status=$(sky status 2>/dev/null)
-  if [[ "${status}" != "online" ]]; then
-    sky start
-  else
-    echo -e "${Tip} Sky Manager is already running"
-  fi
+	local status=$(sky status 2>/dev/null)
+	if [[ "${status}" != "online" ]]; then
+		sky start
+	else
+		echo -e "${Tip} Sky Manager is already running"
+	fi
 
-  read -n 1 -p "Press any key back to menu..."
-  start_menu
+	read -n 1 -p "Press any key back to menu..."
+	start_menu
 }
 
 Stop_Manager(){
-  echo "===================================="
-  echo "========= Stop Sky Manager ========="
-  echo "===================================="
+	echo "===================================="
+	echo "========= Stop Sky Manager ========="
+	echo "===================================="
 
-  if ! command -v sky &>/dev/null; then
-    echo "Sky Manager has not been installed. Please Install Manager."
-    read -n 1 -p "Press any key back to menu..."
-    start_menu
-    return 1
-  fi
+	if ! command -v sky &>/dev/null; then
+		echo "Sky Manager has not been installed. Please Install Manager."
+		read -n 1 -p "Press any key back to menu..."
+		start_menu
+		return 1
+	fi
 
-  local status=$(sky status 2>/dev/null)
-  if [[ "${status}" == "online" ]]; then
-    sky stop
-  else
-    echo -e "${Tip} Sky Manager is not running"
-  fi
+	local status=$(sky status 2>/dev/null)
+	if [[ "${status}" == "online" ]]; then
+		sky stop
+	else
+		echo -e "${Tip} Sky Manager is not running"
+	fi
 
-  read -n 1 -p "Press any key back to menu..."
-  start_menu
+	read -n 1 -p "Press any key back to menu..."
+	start_menu
 }
 
 start_menu(){
 clear
-echo && echo -e " Sky Manager CLI ${Red_font_prefix}[v${cli_ver}]${Font_color_suffix}
-  
- ${Green_font_prefix}0.${Font_color_suffix} Update CLI
- ${Green_font_prefix}1.${Font_color_suffix} Install Manager
- ${Green_font_prefix}2.${Font_color_suffix} Uninstall Manager
- ${Green_font_prefix}3.${Font_color_suffix} Start Manager
- ${Green_font_prefix}4.${Font_color_suffix} Stop Manager
+echo && echo -e "Sky Manager CLI ${Red_font_prefix}[v${cli_ver}]${Font_color_suffix}
+
+${Green_font_prefix}0.${Font_color_suffix} Update CLI
+${Green_font_prefix}1.${Font_color_suffix} Install Manager
+${Green_font_prefix}2.${Font_color_suffix} Uninstall Manager
+${Green_font_prefix}3.${Font_color_suffix} Start Manager
+${Green_font_prefix}4.${Font_color_suffix} Stop Manager
 ————————————Other Utils————————————
- ${Green_font_prefix}5.${Font_color_suffix} Enabled BBR
- ${Green_font_prefix}6.${Font_color_suffix} System Optimization
- ${Green_font_prefix}7.${Font_color_suffix} Exit
+${Green_font_prefix}5.${Font_color_suffix} Enabled BBR
+${Green_font_prefix}6.${Font_color_suffix} System Optimization
+${Green_font_prefix}7.${Font_color_suffix} Exit
 ————————————————————————————————" && echo
 
 	# check_manager_version
@@ -345,7 +342,7 @@ echo && echo -e " Sky Manager CLI ${Red_font_prefix}[v${cli_ver}]${Font_color_su
 		
 	# fi
 echo
-read -p " Entry Number [0-11]:" num
+read -p "Entry Number [0-11]:" num
 case "$num" in
 	0)
 	Update_CLI
@@ -356,10 +353,10 @@ case "$num" in
 	2)
 	Uninstall_Manager
 	;;
-  3)
+	3)
 	Start_Manager
 	;;
-  4)
+	4)
 	Stop_Manager
 	;;
 	5)
