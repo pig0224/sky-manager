@@ -181,7 +181,7 @@ Install_Manager(){
   echo "===================================================="
 
   if command -v sky &>/dev/null; then
-    echo "Complated, sky-manager is installed."
+    echo "Complated, Sky Manager is installed."
     read -n 1 -p "Press any key back to menu..."
     start_menu
     return 0
@@ -202,18 +202,20 @@ Install_Manager(){
     echo "The files are being decompressed to /opt..."
     tar -xJvf "${NODE_FILE}" -C /opt >/dev/null 2>&1
     if [ $? -ne 0 ]; then
-      echo "Decompression failed, please check the integrity of the downloaded file."
-      read -n 1 -p "Press any key back to menu..."
-      start_menu
-      return 1
+    	echo "Decompression failed, please check the integrity of the downloaded file."
+    	read -n 1 -p "Press any key back to menu..."
+    	start_menu
+    	return 1
     fi
 
     echo "Configure system environment variables..."
     if ! grep -q "${NODE_DIR}/bin" /etc/profile; then
-      echo "export PATH=${NODE_DIR}/bin:\$PATH" >> /etc/profile
+    	echo "export PATH=${NODE_DIR}/bin:\$PATH" >> /etc/profile
+    	echo "export PATH=${NODE_DIR}/bin:\$PATH" >> ~/.bashrc
     fi
 
     source /etc/profile
+    source ~/.bashrc
     export PATH=${NODE_DIR}/bin:$PATH
 
     node --version
@@ -222,9 +224,9 @@ Install_Manager(){
 
   npm install -g sky-manager
   if [ $? -eq 0 ]; then
-    echo "sky-manager Installed successfully"
+    echo "Sky Manager Installed successfully"
   else
-    echo "sky-manager Installation failed, please check the error message above."
+    echo "Sky Manager Installation failed, please check the error message above."
   fi
 
   rm -f "${NODE_FILE}"
@@ -256,7 +258,7 @@ Uninstall_Manager(){
   fi
 
   if [ ! -d "${NODE_DIR}" ] && ! command -v node &>/dev/null; then
-    echo "Complated, sky-manager is not installed."
+    echo "Complated, Sky Manager is not installed."
     read -n 1 -p "Press any key back to menu..."
     start_menu
     return 0
@@ -269,7 +271,7 @@ Uninstall_Manager(){
   sed -i "/node-${NODE_VERSION}-linux-x64/d" /etc/profile
   source /etc/profile
 
-  echo "Complated, sky-manager has been uninstalled."
+  echo "Complated, Sky Manager has been uninstalled."
   read -n 1 -p "Press any key back to menu..."
   start_menu
 }
@@ -290,7 +292,7 @@ Start_Manager(){
   if [[ "${status}" != "online" ]]; then
     sky start
   else
-    echo -e "${Tip} sky-manager is already running"
+    echo -e "${Tip} Sky Manager is already running"
   fi
 
   read -n 1 -p "Press any key back to menu..."
@@ -303,7 +305,7 @@ Stop_Manager(){
   echo "===================================="
 
   if ! command -v sky &>/dev/null; then
-    echo "sky-manager has not been installed. Please Install Manager."
+    echo "Sky Manager has not been installed. Please Install Manager."
     read -n 1 -p "Press any key back to menu..."
     start_menu
     return 1
@@ -313,7 +315,7 @@ Stop_Manager(){
   if [[ "${status}" == "online" ]]; then
     sky stop
   else
-    echo -e "${Tip} sky-manager is not running"
+    echo -e "${Tip} Sky Manager is not running"
   fi
 
   read -n 1 -p "Press any key back to menu..."
@@ -333,7 +335,7 @@ echo && echo -e " Sky Manager CLI ${Red_font_prefix}[v${cli_ver}]${Font_color_su
  ${Green_font_prefix}5.${Font_color_suffix} Enabled BBR
  ${Green_font_prefix}6.${Font_color_suffix} System Optimization
  ${Green_font_prefix}7.${Font_color_suffix} Exit
-———————————————————————————————————" && echo
+————————————————————————————————" && echo
 
 	# check_manager_version
 	# if [[ ${manager_version} == "noinstall" ]]; then
