@@ -232,7 +232,7 @@ Install_Manager(){
 
 	if command -v sky &>/dev/null; then
 		local status=$(sky status 2>/dev/null)
-		if [[ "${status}" == "online" ]]; then
+		if [[ "${status}" =~ "online" ]]; then
 		sky restart
 		else
 		sky start
@@ -253,7 +253,7 @@ Uninstall_Manager(){
 
 	if command -v sky &>/dev/null; then
 		local status=$(sky status 2>/dev/null)
-		if [[ "${status}" == "online" ]]; then
+		if [[ "${status}" =~ "online" ]]; then
 			sky stop
 		fi
 	fi
@@ -292,7 +292,7 @@ Start_Manager(){
 	fi
 
 	local status=$(sky status 2>/dev/null)
-	if [[ "${status}" != "online" ]]; then
+	if [[ ! "${status}" =~ "online" ]]; then
 		sky start
 	else
 		echo -e "${Tip} Sky Manager is already running"
@@ -308,7 +308,7 @@ Stop_Manager(){
 	echo "===================================="
 
 	export PATH=${NODE_DIR}/bin:$PATH
-	
+
 	if ! command -v sky &>/dev/null; then
 		echo "Sky Manager has not been installed. Please Install Manager."
 		read -n 1 -p "Press any key back to menu..."
@@ -317,7 +317,7 @@ Stop_Manager(){
 	fi
 
 	local status=$(sky status 2>/dev/null)
-	if [[ "${status}" == "online" ]]; then
+	if [[ "${status}" =~ "online" ]]; then
 		sky stop
 	else
 		echo -e "${Tip} Sky Manager is not running"
