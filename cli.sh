@@ -255,8 +255,6 @@ Uninstall_Manager(){
 		local status=$(sky status 2>/dev/null)
 		if [[ "${status}" =~ "online" ]]; then
 			sky stop
-			pkill -f "manager" 2>/dev/null
-			killall -9 manager 2>/dev/null
 		fi
 	fi
 
@@ -266,9 +264,6 @@ Uninstall_Manager(){
 		start_menu
 		return 0
 	fi
-
-	pkill -f "node" 2>/dev/null
-	killall -9 node 2>/dev/null
 
 	npm uninstall -g sky-manager >/dev/null 2>&1
 
@@ -324,8 +319,6 @@ Stop_Manager(){
 	local status=$(sky status 2>/dev/null)
 	if [[ "${status}" =~ "online" ]]; then
 		sky stop
-		pkill -f "manager" 2>/dev/null
-		killall -9 manager 2>/dev/null
 	else
 		echo -e "${Tip} Sky Manager is not running"
 	fi
